@@ -22,7 +22,7 @@ class Clients_WP_Dropbox{
         add_action('admin_enqueue_scripts', array( $this, 'cwp_dropbox_add_admin_scripts' ));
         add_action('wp_enqueue_scripts', array($this, 'cwp_dropbox_add_wp_scripts'), 20, 1);
         add_filter('the_content', array($this, 'folder_content_table'), 6);
-        add_action('wp_ajax_upload_file', array($this, 'upload_file_ajax'));
+        add_action('init', array($this, 'upload_file'));
     }
 
     public function cwp_dropbox_add_admin_scripts() {
@@ -91,6 +91,10 @@ class Clients_WP_Dropbox{
     }
 
     public function folder_content_table() {
+        if(isset($_POST['upload_file'])) {
+            echo 'folder_content_table';
+        }
+
         global $pages;
 
         foreach($pages as $page) {
@@ -174,20 +178,21 @@ class Clients_WP_Dropbox{
         }
     } 
 
-    public function upload_file_ajax() {
-        print_r($_POST['data']);
-        die();
-        /*$cwpdropbox_settings_options = get_option('cwpdropbox_settings_options');
-        $app_key    = isset($cwpdropbox_settings_options['app_key']) ? $cwpdropbox_settings_options['app_key'] : '';
-        $app_secret = isset($cwpdropbox_settings_options['app_secret']) ? $cwpdropbox_settings_options['app_secret'] : '';
-        $app_token  = isset($cwpdropbox_settings_options['app_token']) ? $cwpdropbox_settings_options['app_token'] : '';
-        var_dump($_POST['data']['file']);
-        die();
+    public function upload_file() {
+        if(isset($_POST['action'])) {
+            if($_POST['action'] == 'dropbox_upload_file') {
+                $file = realpath($_FILES["upload_file"]["tmp_name"]);
+                $cwpdropbox_settings_options = get_option('cwpdropbox_settings_options');
+                $app_key    = isset($cwpdropbox_settings_options['app_key']) ? $cwpdropbox_settings_options['app_key'] : '';
+                $app_secret = isset($cwpdropbox_settings_options['app_secret']) ? $cwpdropbox_settings_options['app_secret'] : '';
+                $app_token  = isset($cwpdropbox_settings_options['app_token']) ? $cwpdropbox_settings_options['app_token'] : '';
 
-        if(!empty($app_key) && !empty($app_secret)) {
-            $app = new DropboxApp($app_key, $app_secret, $app_token);
-            $dropbox = new Dropbox($app);
-            $dropbox->upload($dropboxFile, $path, ['autorename' => true]);
-        }*/
+                if(!empty($app_key) && !empty($app_secret)) {
+                    $app = new DropboxApp($app_key, $app_secret, $app_token);
+                    $dropbox = new Dropbox($app);
+                    $result = $dropbox->upload($file, $_POST['path'].'/'.$_FILES["upload_file"]["name"], ['autorename' => true]);
+                }
+            }
+        }
     }
 }

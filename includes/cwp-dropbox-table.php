@@ -11,14 +11,20 @@
         // $bytes /= (1 << (10 * $pow)); 
 
         return round($bytes, $precision) . ' ' . $units[$pow]; 
-    } 
+    }
 ?>
 
 <table id="dropbox-table" class="table table-striped table-bordered" data-key="<?= $app_token ?>" data-path="<?= $root_folder ?>" style="width:100%">
 	<h1>Dropbox</h1>
 	<span><b>ROOT:</b> <?= $root_folder ?></span>
 	<a href="javascript:;" style="float: right; text-decoration: none;" class="upload-file">Upload File</a>
-	<input name="file_1" type="file" id="select-file-upload" hidden>
+
+	<form action="" method="post" id="dropbox_upfile_form" enctype="multipart/form-data">
+	    <input type="hidden" name="path" value="<?= $root_folder ?>">
+	    <input type="hidden" name="action" value="dropbox_upload_file" />
+	    <input type="file" name="upload_file" id="select-file-upload" hidden>
+	</form>
+
     <thead>
         <tr>
             <th style="text-align: center;">Name</th>

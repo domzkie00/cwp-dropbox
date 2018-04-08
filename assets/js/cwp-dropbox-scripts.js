@@ -5,7 +5,6 @@ jQuery(function($){
 		$(document).ready(function() {
 	        //$('#dropbox-table').DataTable();
 	        if(table.find('.one-file').length == 0) {
-	        	console.log('hey');
 				table.find('.empty-table').show();
 			}
 		});
@@ -15,29 +14,10 @@ jQuery(function($){
 		});
 
 		$(document).on('change', '#select-file-upload', function(e){
-			var files = e.target.files;
-			console.log(files);
-		    var data = new FormData();
-		    $.each(files[0], function(key, value){
-		        data.append(key, value);
-		    });
-
-		    console.log(data);
-
-            $.post(
-                cwpd_wp_script.ajaxurl,
-                { 
-            	data: JSON.stringify(files[0]),
-                action : 'upload_file',
-                contentType: false,
-                processData: false,
-                }, 
-                function( result, textStatus, xhr ) {
-                    console.log(result);
-                }).fail(function(error) {
-                    console.log(error);
-                }
-            );
+			$('.upload-file').text('Uploading...');
+			$('.upload-file').css({'pointer-events': 'none', 'box-shadow': 'none'});
+			$('.upload-file').blur();
+			$('#dropbox_upfile_form').submit();
 		});
 
 		$(document).on('click', '.db-trash', function(){
