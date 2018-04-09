@@ -21,7 +21,7 @@ class Clients_WP_Dropbox{
         add_action('admin_init', array($this, 'get_access_token'));
         add_action('admin_enqueue_scripts', array( $this, 'cwp_dropbox_add_admin_scripts' ));
         add_action('wp_enqueue_scripts', array($this, 'cwp_dropbox_add_wp_scripts'), 20, 1);
-        add_filter('the_content', array($this, 'folder_content_table'), 6);
+        add_filter('the_content', array($this, 'folder_content_table'));
         add_action('init', array($this, 'upload_file'));
     }
 
@@ -90,14 +90,11 @@ class Clients_WP_Dropbox{
         endif;
     }
 
-    public function folder_content_table() {
-        if(isset($_POST['upload_file'])) {
-            echo 'folder_content_table';
-        }
-
+    public function folder_content_table($content) {
         global $pages;
 
         foreach($pages as $page) {
+            $page_content = nl2br($page);
             if (strpos($page, '[cwp_') !== FALSE) {
                 $args = array(
                     'meta_key' => '_clients_page_shortcode',
@@ -143,12 +140,6 @@ class Clients_WP_Dropbox{
                             }
 
                             if(!empty($app_key) && !empty($app_secret)) {
-                                /*$app = new DropboxApp($app_key, $app_secret, $app_token);
-                                $dropbox = new Dropbox($app);
-                                $listFolderContents = $dropbox->listFolder($root_folder); // error here
-                                $items = $listFolderContents->getItems();
-                                $all_items = $items->all();*/
-
                                 $ch = curl_init();
                                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
                                 curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
@@ -169,12 +160,16 @@ class Clients_WP_Dropbox{
                                 $result_array = json_decode(trim($result), TRUE);
                                 curl_close($ch);
 
+                                ob_start();
                                 include_once(CWPD_PATH_INCLUDES . '/cwp-dropbox-table.php');
+                                $page_content .= ob_get_clean();
                             }
                         }
                     }
                 }
             }
+
+            return $page_content;
         }
     } 
 
